@@ -185,11 +185,10 @@ def reset(request):
         confirm_reset=form.cleaned_data.get("resetconfirm")
         if reset == confirm_reset :
             u = User.objects.get(username__exact=global_user)
-            u.set_password(reset)
+            u.password=reset
             u.save()
             request.session["user_id"]=u.id
             return render(request,'articles/home.html')
-
     
     return render(request,'articles/resetpassword.html',{"form" : form})
 
