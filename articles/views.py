@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse , HttpResponseRedirect
 from .models import *
 from django.conf import settings
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate , login
 from .forms import *
 from random import randint
 from django.core.mail import send_mail , BadHeaderError
@@ -64,17 +64,24 @@ def face_register(request):
 
 # ******************************** login ************************************
 
-# ***********osama**********************
+# ***********osama **********************
 def signin(request):
-    users = User.objects.all()
-    try:
-        for user in users:
-            # check for username and pass in DB ...
-            if(user.username == request.POST['u_name'] and user.password == request.POST['pass']):
-            # the password verified for the user ...
+    context = RequestContext(request)
+    if "user_id" in request.session:
+         return render(request, 'articles/home.html',{'user_id':request.session["user_id"]})
+    else:
+    # If the request is a HTTP POST, try to pull out the relevant information.
+        if request.method == 'POST':
+            # Gather the username and password provided by the user.
+            # This information is obtained from the login form.
+            username = request.POST['u_name']
+            password = request.POST['pass']
+
+            user = authenticate(username=username, password=password)
+            if user:
+                # Is the account active? It could have been disabled.
                 if user.is_active:
                     request.session["user_id"] = user.id
-                    #check if the user marked the remember me checkbox to set cookie ...
                     if request.POST.get('remember_me') == "checked":
                         request.session.set_test_cookie()
                         if request.session.test_cookie_worked():
@@ -82,19 +89,20 @@ def signin(request):
                         #set user cookie to remember when logged in again ...
                         request.COOKIES['rememberMe'] = request.POST['remember_me']
                     return render(request, 'articles/home.html',{'User':user})
+                    
+                else:
+                    # An inactive account was used - no logging in!
+                    return render(request, 'articles/activeAccount.html')
+            else:
+                # Bad login details were provided. So we can't log the user in.
+                return render(request, 'articles/test.html')
 
-                else:    
-                    return render(request, 'articles/activeAccount.html')                                             
-    except:
-        try:
-        	if "user_id" in request.session :
-        		return render(request, 'articles/home.html')
-        	else:
-        		return render(request, 'articles/email_login.html')	
-        except:
-        	return render(request, 'articles/email_login.html')	
-       
-    return render(request, 'articles/test.html')
+        # The request is not a HTTP POST, so display the login form.
+        # This scenario would most likely be a HTTP GET.
+        else:
+            # No context variables to pass to the template system, hence the
+            # blank dictionary object...
+            return render(request,'articles/email_login.html',  context)
 
 # ***********osama-- signin**********************
 def home(request):
@@ -185,7 +193,7 @@ def reset(request):
         confirm_reset=form.cleaned_data.get("resetconfirm")
         if reset == confirm_reset :
             u = User.objects.get(username__exact=global_user)
-            u.password=reset
+            u.set_password(reset)
             u.save()
             request.session["user_id"]=u.id
             return render(request,'articles/home.html')
@@ -275,3 +283,44 @@ def view_all_articles(request):
         # {% for comment in profile.user.comment_set.all %}
 
 # ********************************      ************************************        
+
+
+
+
+
+
+
+
+#function osama 
+
+
+# def signin(request):
+#     users = User.objects.all()
+#     try:
+#         for user in users:
+#             # check for username and pass in DB ...
+#             if(user.username == request.POST['u_name'] and user.password == request.POST['pass']):
+#             # the password verified for the user ...
+#                 if user.is_active:
+#                     request.session["user_id"] = user.id
+#                     #check if the user marked the remember me checkbox to set cookie ...
+#                     if request.POST.get('remember_me') == "checked":
+#                         request.session.set_test_cookie()
+#                         if request.session.test_cookie_worked():
+#                             print "cookie wokrs"
+#                         #set user cookie to remember when logged in again ...
+#                         request.COOKIES['rememberMe'] = request.POST['remember_me']
+#                     return render(request, 'articles/home.html',{'User':user})
+
+#                 else:    
+#                     return render(request, 'articles/activeAccount.html')                                             
+#     except:
+#         try:
+#         	if "user_id" in request.session :
+#         		return render(request, 'articles/home.html')
+#         	else:
+#         		return render(request, 'articles/email_login.html')	
+#         except:
+#         	return render(request, 'articles/email_login.html')	
+       
+#     return render(request, 'articles/test.html')

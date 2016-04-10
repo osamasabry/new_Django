@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 
 import os
 
+from django.utils.module_loading import import_module
+
+# from social_auth.backends import get_backend
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'articles',
     # 'captcha',
     # 'registration',
+    # 'social.apps.django_app.default',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -165,14 +170,17 @@ AUTHENTICATION_BACKENDS = (
    
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
+    # 'django.contrib.auth.backends.ModelBackend',
 
     # `allauth` specific authentication methods, such as login by e-mail
     'allauth.account.auth_backends.AuthenticationBackend',
 
-    'social.backends.facebook.FacebookOAuth2',  # ..............> for osama
+    # 'social.backends.facebook.FacebookOAuth2',  
+
+    # ..............> for osama
     
 )
 
-SITE_ID = 2
+SITE_ID = 4
 
 LOGIN_REDIRECT_URL="/home/"
