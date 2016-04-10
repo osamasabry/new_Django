@@ -79,14 +79,11 @@ def signin(request):
 
             user = authenticate(username=username, password=password)
             if user:
-                # Is the account active? It could have been disabled.
                 if user.is_active:
                     request.session["user_id"] = user.id
                     if request.POST.get('remember_me') == "checked":
                         request.session.set_test_cookie()
                         if request.session.test_cookie_worked():
-                            print "cookie wokrs"
-                        #set user cookie to remember when logged in again ...
                         request.COOKIES['rememberMe'] = request.POST['remember_me']
                     return render(request, 'articles/home.html',{'User':user})
                     
@@ -96,17 +93,11 @@ def signin(request):
             else:
                 # Bad login details were provided. So we can't log the user in.
                 return render(request, 'articles/test.html')
-
-        # The request is not a HTTP POST, so display the login form.
-        # This scenario would most likely be a HTTP GET.
         else:
-            # No context variables to pass to the template system, hence the
-            # blank dictionary object...
             return render(request,'articles/email_login.html',  context)
 
 # ***********osama-- signin**********************
 def home(request):
-    #check if the user logged in redirect to home page
     if "user_id" in request.session :
         user=request.session['user_id']
         return  render(request, 'articles/home.html',{"User":user})
@@ -216,7 +207,6 @@ def index(request):
     return render(request,'articles/index.html')
 
 def login(request):
-    # return HttpResponse("Hello, world. You're at the article index.")
     return render(request,'articles/login.html')
 
     
