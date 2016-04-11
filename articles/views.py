@@ -84,7 +84,7 @@ def signin(request):
                     if request.POST.get('remember_me') == "checked":
                         request.session.set_test_cookie()
                         if request.session.test_cookie_worked():
-                        request.COOKIES['rememberMe'] = request.POST['remember_me']
+                        	request.COOKIES['rememberMe'] = request.POST['remember_me']
                     return render(request, 'articles/home.html',{'User':user})
                     
                 else:
